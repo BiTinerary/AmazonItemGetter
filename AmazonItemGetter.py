@@ -124,5 +124,5 @@ if __name__ == "__main__":
     root.resizable(0,0) # Not resizeable
     root.geometry("465x500") # Static width/height of tkinter GUI
     center(root) # call Center function on entire frame, so each run is displayed on same monitors coordinates
-    root.title('Amazon Searcher') # Name GUI Window
+    root.title('Amazon Item Getter') # Name GUI Window
     root.mainloop() # Run it
