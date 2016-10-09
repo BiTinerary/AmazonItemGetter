@@ -21,6 +21,7 @@ End user friendly tkinter GUI for conducting hundreds of amazon searches/minute 
 * Add Multiple file selection
 * Review Amazon API info for searching via <strike>UPC</strike>, MID, ASIN, etc... not just keywords. Can add UPC function call to main `try/except` loop later.
 
+###HTML Output Example
 <br>
 <img src='https://github.com/BiTinerary/AmazonItemGetter/blob/master/Untitledhtml.png'></img>
 <br>
