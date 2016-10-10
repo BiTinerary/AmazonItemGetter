@@ -35,42 +35,61 @@ def getAllInfo(keyWordSearch):
     for each in apiCallArray:  # Every keyword variable passed through this function will be put into 3 Amazon API calls to get their corresponding image, price, desc.
         soup = bs.BeautifulSoup(each, 'lxml') # Amazon API calls respond with XML source code. The 'each' is each XML source for images, price, desc.
 
-        if each == description:
-            descriptionString = soup.title.string # Find <title> tag after being parsed by BeautifulSoup, then return only the string inside said tag.
-            descriptionArray.append(str(descriptionString)) # Store this string into 'description' array.
-            print descriptionString # Debugging
-
-        elif each == prices:
-            pricing = soup.find_all('formattedprice') # Find all occurances of 'formattedprice' tags and store in memory as a list.
-            _findAveragePrice = [] # Create scratch array of many, many listings different asking prices (New, Used, Old...)
-            for everyThing in pricing: # For every 'formattedprice' tag found
-                slurp = bs.BeautifulSoup(str(everyThing), 'lxml') # Parse each occurance of an asking price
-                for everyOne in slurp: #We are going to add up each asking price, to find the average cost.
-                    _findAveragePrice.append(float(everyOne.formattedprice.string.lstrip('$'))) # strip '$' from asking price, so we can convert into a float $(21.99)
-            if len(_findAveragePrice) > 10: # If there are more than 10 listings, the average might be skewed by low ballers or outliers.
-                while len(_findAveragePrice) > 10: # Since there are more than 10 asking prices, we are going to trim the fat.
-                    _findAveragePrice.pop() # pop() removes the -1th (last) index until While loop is True
-                averageMeanPrice = sum(_findAveragePrice)/len(_findAveragePrice) # Find the mean average of every index (asking price) for a keyword
+        try: 
+            if each == description:
+                descriptionString = soup.title.string # Find <title> tag after being parsed by BeautifulSoup, then return only the string inside said tag.
+                descriptionArray.append(str(descriptionString)) # Store this string into 'description' array.
+                print descriptionString # Debugging
             else:
-                averageMeanPrice = sum(_findAveragePrice)/len(_findAveragePrice) # Otherwise, if there aren't more than 10 asking prices found, just find the average of all.
-            actualAveragePrice.append(str(averageMeanPrice)) # Append the resulting, single averaged, asking price to a static array that will be used later.
-            print str(averageMeanPrice) # Debuggin
+                pass
+        except:
+            print 'woops'
 
-        elif each == picture:
-            imageString = soup.mediumimage.url.string # Simply parse the string contents of <mediumimage> tag found in Amazon API .XML response.
-            imgURlArray.append(str(imageString)) # append url string to static array that will be used later.
-            print imageString # Debugging
-        else:
-            pass # This will never run
+        try:
+            if each == prices:
+                pricing = soup.find_all('formattedprice') # Find all occurances of 'formattedprice' tags and store in memory as a list.
+                _findAveragePrice = [] # Create scratch array of many, many listings different asking prices (New, Used, Old...)
+                for everyThing in pricing: # For every 'formattedprice' tag found
+                    slurp = bs.BeautifulSoup(str(everyThing), 'lxml') # Parse each occurance of an asking price
+                    for everyOne in slurp: #We are going to add up each asking price, to find the average cost.
+                        _findAveragePrice.append(float(everyOne.formattedprice.string.lstrip('$'))) # strip '$' from asking price, so we can convert into a float $(21.99)
+                if len(_findAveragePrice) > 10: # If there are more than 10 listings, the average might be skewed by low ballers or outliers.
+                    while len(_findAveragePrice) > 10: # Since there are more than 10 asking prices, we are going to trim the fat.
+                        _findAveragePrice.pop() # pop() removes the -1th (last) index until While loop is True
+                    averageMeanPrice = sum(_findAveragePrice)/len(_findAveragePrice) # Find the mean average of every index (asking price) for a keyword
+                else:
+                    averageMeanPrice = sum(_findAveragePrice)/len(_findAveragePrice) # Otherwise, if there aren't more than 10 asking prices found, just find the average of all.
+                actualAveragePrice.append(str(averageMeanPrice)) # Append the resulting, single averaged, asking price to a static array that will be used later.
+                print str(averageMeanPrice) # Debuggin
+            else:
+                pass
+        except:
+            print 'woops'
+
+        try:
+            if each == picture:
+                imageString = soup.largeimage.url.string # Simply parse the string contents of <mediumimage> tag found in Amazon API .XML response.
+                imgURlArray.append(str(imageString)) # append url string to static array that will be used later.
+                print imageString # Debugging
+            else:
+                pass
+                #print 'woops' # This will never run
+        except:
+            print 'woops'
 
 def createHTMLOutputFile(): # This is the last thing to run. Gather up everything in static arrays and write/save/display to an html file. 
     i = 0 # Counter for starting static arrays at zero
     with open('index.html', 'w') as html: # Create file if not present, overwrite if is present.
-        for everyItemFound in descriptionArray: # For every result found do the following.
+        for everyItemFound in imgURlArray: # For every result found do the following.
             if everyItemFound == '': # If contents of description array index is an empty string, don't do anything.
+                print imgURlArray#.pop(i)
+                print descriptionArray#.pop(i)
+                print actualAveragePrice#.pop(i)
                 pass
             else: # Otherwise [since it's not empty] continue with the juicy stuff.
-                html.write("<img src='%s'></img><br></br><b>Description:</b><br>%s<b><br>Price:</b> %s<br></br>" % (imgURlArray[i], descriptionArray[i], actualAveragePrice[i])) # write Basic html code for displaying image, price, desc.
+                html.write("<p style='float: left; font-size: 12pt; text-align: center; width: 20%%; margin-right: 1%%; margin-bottom: 0.5em;'><img src='%s' style='width: 100%%'><b>Item:</b> %s<br><b>Price:</b> %s</img></p><br>" % (imgURlArray[i], descriptionArray[i][0:30], actualAveragePrice[i]))
+                #html.write('<img src="%s" style="float: left; width: 30%; margin-right: 1%; margin-bottom: 0.5em;">')
+                #html.write("<img src='%s'></img><br></br><b>Description:</b><br>%s<b><br>Price:</b> %s<br></br>" % (imgURlArray[i], descriptionArray[i], actualAveragePrice[i])) # write Basic html code for displaying image, price, desc.
                 i += 1 # # 1 up the counter, so that the above for loop can enumerate through the static array index's being written to html file.
         html.close() # Make sure to properly close index.html
 
@@ -84,13 +103,13 @@ class mainApp(tk.Tk): # The core class for creating tkinter GUI
             i = 0 # Main loop for finding description, price, url for items.
             for each in lines:
                 i += 1 # Counter for command line item number debugging
-                try: # Try to search keyword using Amazon API
-                    print 'Item: ' + str(i)
-                    getAllInfo(each) # Run function [that gets description/price/imageurl] for each keyword passed to it. (keyword is every line from selected file)
-                    print ''
-                except: # If Amazon API didn't find an item, let end user know via CLI
-                    print 'Item Not Found! Item Not Found! Item Not Found!\n'
-                    continue
+                #try: # Try to search keyword using Amazon API
+                #print 'Item: ' + str(i)
+                getAllInfo(each) # Run function [that gets description/price/imageurl] for each keyword passed to it. (keyword is every line from selected file)
+                #print ''
+                #finally: # If Amazon API didn't find an item, let end user know via CLI
+                #    print 'Item Not Found! Item Not Found! Item Not Found!\n'
+                #    continue
 
             i = 1
             for description in descriptionArray: #Makes a button/label for each item found, then uses description as displayed text
