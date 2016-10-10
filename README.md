@@ -7,8 +7,8 @@ End user friendly tkinter GUI for conducting 1 Amazon search/second for each lin
 <img src='https://github.com/BiTinerary/AmazonItemGetter/blob/master/Untitled.png'></img>
 <br>
 ##Note:
-* GUI lists only first 4 items (lines in selected `.csv` file) followed by 3 different listings for each item.
-* However, API calls are done for every line in selected `.csv`, anything more will be appended to an `output.csv`
+* GUI lists first 20 items (lines in selected `.csv` file) followed by average price (of <=10 listings) for each item.
+* However, API calls are done for every line in selected `.csv/`, anything more will be appended to an `output.html`
 <br>
 
 ###TODO
