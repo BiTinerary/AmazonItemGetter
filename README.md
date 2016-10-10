@@ -2,7 +2,7 @@
 GUI for getting Bulk Amazon listing descriptions and prices via API.
 
 ## Over all
-End user friendly tkinter GUI for conducting hundreds of amazon searches/minute by selecting a spreadsheet. Outputing results to `.csv/.xlsx` which can then be analyzed to see the best 'for sale' prices.<br>
+End user friendly tkinter GUI for conducting 1 Amazon search/second for each line in selected spreadsheet. Outputing results to `.html` file which can then be analyzed to see the average 'for sale' prices and double check accuracy of search results by displaying images and description.<br>
 <br>
 <img src='https://github.com/BiTinerary/AmazonItemGetter/blob/master/Untitled.png'></img>
 <br>
