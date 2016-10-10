@@ -26,6 +26,15 @@ imgURlArray = [] #Store items iamge url
 actualAveragePrice = [] # Mean average of every listings prices
 _findAveragePrice = [] # Scratch pad array thats used for averaging items asking prices
 
+def createHTMLOutputFile(): # This is the last thing to run. Gather up everything in static arrays and write/save/display to an html file. 
+    i = 0 # Counter for starting static arrays at zero
+    with open('index.html', 'w') as html: # Create file if not present, overwrite if is present.
+        for everyItemFound in imgURlArray: # For every result found do the following.
+            html.write("<p style='float: left; font-size: 20pt; text-align: center; width: 20%%; margin-right: 1%%; margin-bottom: 0.5em;'><img src='%s' style='width: 100%%'><b>Item:</b> %s<br><b>Price:</b> %s</img></p><br>" % (imgURlArray[i], descriptionArray[i][0:30], actualAveragePrice[i]))
+            i += 1 # # 1 up the counter, so that the above for loop can enumerate through the static array index's being written to html file.
+            print 'writing...'
+        html.close() # Make sure to properly close index.html
+
 def getAllInfo(keyWordSearch):
     description = amazon.ItemSearch(Keywords=keyWordSearch, SearchIndex="All") # Same, but for general description, etc...
     prices = amazon.ItemSearch(Keywords=keyWordSearch, SearchIndex="All", ResponseGroup="Offers") # Amazon API call for getting many listing prices of each items
@@ -43,7 +52,8 @@ def getAllInfo(keyWordSearch):
             else:
                 pass
         except:
-            print 'woops'
+            descriptionArray.append('')
+            print descriptionArray
 
         try:
             if each == prices:
@@ -64,7 +74,8 @@ def getAllInfo(keyWordSearch):
             else:
                 pass
         except:
-            print 'woops'
+            actualAveragePrice.append('')
+            print actualAveragePrice
 
         try:
             if each == picture:
@@ -73,25 +84,11 @@ def getAllInfo(keyWordSearch):
                 print imageString # Debugging
             else:
                 pass
-                #print 'woops' # This will never run
         except:
-            print 'woops'
-
-def createHTMLOutputFile(): # This is the last thing to run. Gather up everything in static arrays and write/save/display to an html file. 
-    i = 0 # Counter for starting static arrays at zero
-    with open('index.html', 'w') as html: # Create file if not present, overwrite if is present.
-        for everyItemFound in imgURlArray: # For every result found do the following.
-            if everyItemFound == '': # If contents of description array index is an empty string, don't do anything.
-                print imgURlArray#.pop(i)
-                print descriptionArray#.pop(i)
-                print actualAveragePrice#.pop(i)
-                pass
-            else: # Otherwise [since it's not empty] continue with the juicy stuff.
-                html.write("<p style='float: left; font-size: 12pt; text-align: center; width: 20%%; margin-right: 1%%; margin-bottom: 0.5em;'><img src='%s' style='width: 100%%'><b>Item:</b> %s<br><b>Price:</b> %s</img></p><br>" % (imgURlArray[i], descriptionArray[i][0:30], actualAveragePrice[i]))
-                #html.write('<img src="%s" style="float: left; width: 30%; margin-right: 1%; margin-bottom: 0.5em;">')
-                #html.write("<img src='%s'></img><br></br><b>Description:</b><br>%s<b><br>Price:</b> %s<br></br>" % (imgURlArray[i], descriptionArray[i], actualAveragePrice[i])) # write Basic html code for displaying image, price, desc.
-                i += 1 # # 1 up the counter, so that the above for loop can enumerate through the static array index's being written to html file.
-        html.close() # Make sure to properly close index.html
+            imgURlArray.append('http://i63.tinypic.com/ws1d9t.png') # Asign url to picture of a 'broken image' so that html doesnt display large empty border with borken link icon, in the event that Amazon API doesn't return one. 
+            print imgURlArray
+        
+        createHTMLOutputFile() # Run function that creates HTML file and writes each items qualities to it. Easy for viewing URL images.
 
 class mainApp(tk.Tk): # The core class for creating tkinter GUI
     def __init__(self):
@@ -103,13 +100,8 @@ class mainApp(tk.Tk): # The core class for creating tkinter GUI
             i = 0 # Main loop for finding description, price, url for items.
             for each in lines:
                 i += 1 # Counter for command line item number debugging
-                #try: # Try to search keyword using Amazon API
-                #print 'Item: ' + str(i)
                 getAllInfo(each) # Run function [that gets description/price/imageurl] for each keyword passed to it. (keyword is every line from selected file)
-                #print ''
-                #finally: # If Amazon API didn't find an item, let end user know via CLI
-                #    print 'Item Not Found! Item Not Found! Item Not Found!\n'
-                #    continue
+                # Place Try/Except here for trying keyword query (as seen above), if failed, then try passing a UPC?
 
             i = 1
             for description in descriptionArray: #Makes a button/label for each item found, then uses description as displayed text
@@ -122,8 +114,6 @@ class mainApp(tk.Tk): # The core class for creating tkinter GUI
                 priceLabel = tk.Label(text='$'+price, relief='ridge', width=10, anchor='w')
                 priceLabel.grid(row=i, column=2, padx=5, pady=1) # Row number is enumerated for each index in array containing prices.
                 i += 1
-
-            createHTMLOutputFile() # Run function that creates HTML file and writes each items qualities to it. Easy for viewing URL images.
 
         buttonBrowse = tk.Button(width=20, text='Browse', command=lambda: openFileButton()) #Button to manually and easily select any file from a directory.
         buttonBrowse.place(relx=.025, rely=.012, anchor="nw") #Gui positioning relative to x,y coordinates of whole frames dimensions.
