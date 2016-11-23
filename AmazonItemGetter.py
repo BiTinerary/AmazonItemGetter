@@ -2,6 +2,8 @@ import bottlenose
 import bs4 as bs
 import Tkinter as tk
 from tkFileDialog import *
+import threading
+import ttk
 
 def center(toplevel): # Function for centerint root tKinter Window
     toplevel.update_idletasks()
@@ -13,13 +15,13 @@ def center(toplevel): # Function for centerint root tKinter Window
     toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))
 
 try:
-	r = open('AmazonAPICredz.txt') # Get Amazon API credentials
-	accessKey = r.readline().rstrip('\n')
-	secretAccess = r.readline().rstrip('\n')
-	associatesID = r.readline().rstrip('\n')
-	amazon = bottlenose.Amazon(accessKey, secretAccess, associatesID, MaxQPS=0.9) # Amazon allows 1 call/second. QPS Throttles each subsequent call to .9sec (since the request and response time > 1/10 second)
+    r = open('AmazonAPICredz.txt') # Get Amazon API credentials
+    accessKey = r.readline().rstrip('\n')
+    secretAccess = r.readline().rstrip('\n')
+    associatesID = r.readline().rstrip('\n')
+    amazon = bottlenose.Amazon(accessKey, secretAccess, associatesID, MaxQPS=0.9) # Amazon allows 1 call/second. QPS Throttles each subsequent call to .9sec (since the request and response time > 1/10 second)
 finally:
-	r.close()
+    r.close()
 
 descriptionArray = [] # Store description of items
 imgURlArray = [] #Store items iamge url
@@ -32,7 +34,6 @@ def createHTMLOutputFile(): # This is the last thing to run. Gather up everythin
         for everyItemFound in imgURlArray: # For every result found do the following.
             html.write("<p style='float: left; font-size: 20pt; text-align: center; width: 20%%; margin-right: 1%%; margin-bottom: 0.5em;'><img src='%s' style='width: 100%%'><b>Item:</b> %s<br><b>Price:</b> %s</img></p><br>" % (imgURlArray[i], descriptionArray[i][0:30], actualAveragePrice[i]))
             i += 1 # # 1 up the counter, so that the above for loop can enumerate through the static array index's being written to html file.
-            print 'writing...'
         html.close() # Make sure to properly close index.html
 
 def getAllInfo(keyWordSearch):
@@ -87,7 +88,6 @@ def getAllInfo(keyWordSearch):
         except:
             imgURlArray.append('http://i63.tinypic.com/ws1d9t.png') # Asign url to picture of a 'broken image' so that html doesnt display large empty border with borken link icon, in the event that Amazon API doesn't return one. 
             print imgURlArray
-        
         createHTMLOutputFile() # Run function that creates HTML file and writes each items qualities to it. Easy for viewing URL images.
 
 class mainApp(tk.Tk): # The core class for creating tkinter GUI
@@ -96,12 +96,15 @@ class mainApp(tk.Tk): # The core class for creating tkinter GUI
         def openFileButton(): # Create open file button and enumerate buttons depending on number of lines in file, and its description/price/image results.
             inputFile = askopenfile() 
             lines = inputFile.readlines() # read each line from select file
-            
+
             i = 0 # Main loop for finding description, price, url for items.
             for each in lines:
                 i += 1 # Counter for command line item number debugging
+                print ''
                 getAllInfo(each) # Run function [that gets description/price/imageurl] for each keyword passed to it. (keyword is every line from selected file)
-                # Place Try/Except here for trying keyword query (as seen above), if failed, then try passing a UPC?
+                #progressBar()
+                print 'writing...'
+            print 'Done'    # Place Try/Except here for trying keyword query (as seen above), if failed, then try passing a UPC?
 
             i = 1
             for description in descriptionArray: #Makes a button/label for each item found, then uses description as displayed text
@@ -134,4 +137,4 @@ if __name__ == "__main__":
     root.geometry("465x500") # Static width/height of tkinter GUI
     center(root) # call Center function on entire frame, so each run is displayed on same monitors coordinates
     root.title('Amazon Item Getter') # Name GUI Window
-    root.mainloop() # Run it
+    root.mainloop()# Run it
